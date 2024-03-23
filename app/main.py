@@ -1,12 +1,8 @@
 from fastapi import FastAPI, File, UploadFile, Request
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
-from transformers import AutoModelForCausalLM, AutoTokenizer
-from PIL import Image
 import base64
 import requests
-import io
-import openai
 
 app = FastAPI()
 
@@ -23,11 +19,9 @@ async def process_image(request: Request, file: UploadFile = File(...)):
     image_bytes = await file.read()
     base64_image = base64.b64encode(image_bytes).decode('utf-8')  # Encode image to base64
 
-    api_key = "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"
-
     headers = {
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {api_key}"
+        "Authorization": f"Bearer {GPT_API_KEY}"
     }
 
     payload = {
