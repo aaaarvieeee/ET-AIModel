@@ -3,17 +3,12 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from PIL import Image
+import base64
+import requests
 import io
+import openai
 
 app = FastAPI()
-
-
-model_id = "vikhyatk/moondream2"
-revision = "2024-03-06"
-model = AutoModelForCausalLM.from_pretrained(
-    model_id, trust_remote_code=True, revision=revision
-)
-tokenizer = AutoTokenizer.from_pretrained(model_id, revision=revision)
 
 # Setup templates directory
 templates = Jinja2Templates(directory="app/templates")
@@ -25,20 +20,39 @@ async def read_form(request: Request):
 
 @app.post("/describe-image", response_class=HTMLResponse)
 async def process_image(request: Request, file: UploadFile = File(...)):
-    # Read the image file into PIL Image from the uploaded file in-memory
     image_bytes = await file.read()
-    image = Image.open(io.BytesIO(image_bytes))
-    
-    # Assuming you have methods to process the image and generate a description
-    # Replace 'model.encode_image' and 'model.answer_question' with the actual methods you need to use
-    # For example, you might use the tokenizer to encode the image and text input, 
-    # then use the model to generate a response
-    # The code below is just a placeholder and likely needs to be replaced with your actual model's API
-    prompt = "You are a model designed to read house numbers. Please read the numbers in the image. Theoretically you will be implemented in a drone delivery system. You will be used to read house numbers from the air to ensure that you are delivering to the correct address."
+    base64_image = base64.b64encode(image_bytes).decode('utf-8')  # Encode image to base64
 
-    enc_image = model.encode_image(image)  # This is likely not the correct method call    
-    answer = model.answer_question(enc_image, prompt, tokenizer)
+    api_key = "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"
 
-    
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {api_key}"
+    }
+
+    payload = {
+        "model": "gpt-4-vision-preview",  # This is hypothetical as GPT-4 wasn't available at the time of my knowledge update.
+        "messages": [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": "What is the number in this image?"
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": f"data:image/jpeg;base64,{base64_image}"
+                    }
+                ]
+            }
+        ],
+        "max_tokens": 300
+    }
+
+    response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+    response_data = response.json()
+    answer = response_data['choices'][0]['message']['content']
+
     # Return the result to the template
     return templates.TemplateResponse("form.html", {"request": request, "response": answer})
