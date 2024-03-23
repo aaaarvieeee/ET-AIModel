@@ -4,8 +4,8 @@
 Process prompts
 """
 
-def promptResponse(prompt) -> str:
-    response = f" This prompt has been modified: {prompt}"
+def imageResponse(image) -> str:
+    response = f" This prompt has been modified: {image}"
     
     return response
 
