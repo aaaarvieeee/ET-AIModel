@@ -34,9 +34,10 @@ async def process_image(request: Request, file: UploadFile = File(...)):
     # For example, you might use the tokenizer to encode the image and text input, 
     # then use the model to generate a response
     # The code below is just a placeholder and likely needs to be replaced with your actual model's API
+    prompt = "You are a model designed to read house numbers. Please read the numbers in the image. Theoretically you will be implemented in a drone delivery system. You will be used to read house numbers from the air to ensure that you are delivering to the correct address."
 
     enc_image = model.encode_image(image)  # This is likely not the correct method call    
-    answer = model.answer_question(enc_image, "What are the numbers", tokenizer)
+    answer = model.answer_question(enc_image, prompt, tokenizer)
 
     
     # Return the result to the template
