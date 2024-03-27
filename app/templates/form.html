@@ -6,13 +6,17 @@
   <body>
     <h1>Prompt a Model</h1>
     <form action="http://localhost:8000/describe-image" method="post" enctype="multipart/form-data">
-      Select image to upload:
-      <input type="file" name="file" id="file">
-      <input type="submit" value="Upload Image" name="submit">
-    </form>
+      <label for="house_number_image">Select image of the house number:</label>
+      <input type="file" name="house_number_image" id="house_number_image">
+      <br><br>
+      <label for="gesture_image">Select image of the human gesture:</label>
+      <input type="file" name="gesture_image" id="gesture_image">
+      <br><br>
+      <input type="submit" value="Upload Images" name="submit">
+  </form>
     {% if response %}
     <h2>Response:</h2>
     <p>{{ response }}</p>
     {% endif %}
-  </body>
+</body>
 </html>

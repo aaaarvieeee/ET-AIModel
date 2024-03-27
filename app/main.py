@@ -3,6 +3,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 import base64
 import requests
+import os
 
 app = FastAPI()
 
@@ -15,28 +16,39 @@ async def read_form(request: Request):
 
 
 @app.post("/describe-image", response_class=HTMLResponse)
-async def process_image(request: Request, file: UploadFile = File(...)):
-    image_bytes = await file.read()
-    base64_image = base64.b64encode(image_bytes).decode('utf-8')  # Encode image to base64
+async def process_image(request: Request, house_number_image: UploadFile = File(...), gesture_image: UploadFile = File(...)):
+
+    house_number_image_bytes = await house_number_image.read()
+    base64_house_number_image = base64.b64encode(house_number_image_bytes).decode('utf-8')
+    
+    # Read and encode the second image
+    gesture_image_bytes = await gesture_image.read()
+    base64_gesture_image = base64.b64encode(gesture_image_bytes).decode('utf-8')
+
+    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
     headers = {
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {GPT_API_KEY}"
+        "Authorization": f"Bearer {OPENAI_API_KEY}"
     }
 
     payload = {
-        "model": "gpt-4-vision-preview",  # This is hypothetical as GPT-4 wasn't available at the time of my knowledge update.
+        "model": "gpt-4-vision-preview",
         "messages": [
             {
                 "role": "user",
                 "content": [
                     {
                         "type": "text",
-                        "text": "What is the number in this image?"
+                        "text": "tell me what the number is in the first image. the second image should be a person holding their hands up. tell me if that is true"
                     },
                     {
                         "type": "image_url",
-                        "image_url": f"data:image/jpeg;base64,{base64_image}"
+                        "image_url": f"data:image/jpeg;base64,{base64_house_number_image}"
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": f"data:image/jpeg;base64,{base64_gesture_image}"
                     }
                 ]
             }
@@ -46,6 +58,7 @@ async def process_image(request: Request, file: UploadFile = File(...)):
 
     response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
     response_data = response.json()
+    print(response_data)
     answer = response_data['choices'][0]['message']['content']
 
     # Return the result to the template
