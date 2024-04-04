@@ -1,22 +1,28 @@
 <!-- templates/form.html -->
 <html>
-  <head>
+<head>
     <title>FastAPI Form Example</title>
-  </head>
-  <body>
-    <h1>Prompt a Model</h1>
-    <form action="http://localhost:8000/describe-image" method="post" enctype="multipart/form-data">
-      <label for="house_number_image">Select image of the house number:</label>
-      <input type="file" name="house_number_image" id="house_number_image">
-      <br><br>
-      <label for="gesture_image">Select image of the human gesture:</label>
-      <input type="file" name="gesture_image" id="gesture_image">
-      <br><br>
-      <input type="submit" value="Upload Images" name="submit">
-  </form>
-    {% if response %}
-    <h2>Response:</h2>
-    <p>{{ response }}</p>
-    {% endif %}
+</head>
+<body>
+<h1>Image Analysis</h1>
+<form action="/describe-image" method="post" enctype="multipart/form-data">
+    <label for="user_number">Number:</label>
+    <input type="text" id="user_number" name="user_number"><br><br>
+    
+    <label for="user_action">Human Action (e.g., "holding their hands up"):</label>
+    <input type="text" id="user_action" name="user_action"><br><br>
+
+    <label for="house_number_image">Select image of the house number:</label>
+    <input type="file" name="house_number_image" id="house_number_image"><br><br>
+
+    <label for="gesture_image">Select image of the human gesture:</label>
+    <input type="file" name="gesture_image" id="gesture_image"><br><br>
+
+    <input type="submit" value="Analyze Images">
+</form>
+{% if response %}
+<h2>Response:</h2>
+<p>{{ response }}</p>
+{% endif %}
 </body>
 </html>
